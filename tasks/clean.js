@@ -1,48 +1,73 @@
 var kue = require('kue');
 var inquirer = require('inquirer');
 var lib = require('../lib');
+var chalk = require('chalk');
 
+var type, state;
 
 module.exports = function(queue, argv) {
+  state = argv._[0];
+  var cbCount = 0;
 
-  var state = argv._[0];
   if (!state) {
-    console.error('you should specify jobs state: ', lib.kueStates);
-    lib.exit(queue, 1);
+    console.error('You should specify jobs state: ', lib.kueStates);
+    lib.exit(1);
   }
 
-  // kue.Job.rangeByType ('job', 'failed', 0, 10, 'asc', function (err, selectedJobs) {
+  if (argv._.length > 1) type = argv._[1];
 
   queue[state](function(err, ids) {
-    var total = ids.length;
-    inquirer.prompt([{
-      type: 'confirm',
-      message: 'Clean "' + state + '" ' + total + ' records?',
-      name: 'confirm'
-    }], function(ans) {
-      if (!ans.confirm) {
-        console.log('task was stopped by user');
-        return lib.exit(queue);
-      }
+    countJobs(ids, function(err, total) {
+      inquirer.prompt([{
+        type: 'confirm',
+        message: 'Clean "' + state + '" ' + total + ' records?',
+        name: 'confirm'
+      }], function(ans) {
+        if (!ans.confirm) {
+          console.log(chalk.yellow('Task was stopped by user'));
+          return lib.exit();
+        }
 
-      var count = 0;
-      ids.forEach(function(id) {
-        kue.Job.get(id, function(err, job) {
-          // Your application should check if job is a stuck one
-          console.log('removing job #' + id + '...');
-          count++;
-          job.remove(function(err) {
-            if (err) throw err;
+        for (var i = 0; i < ids.length; i++) {
+          kue.Job.get(ids[i], processor);
+        }
 
-            console.log('removed "' + state + '" job #%d (%d/%d)', job.id, total - count + 1, total);
+        function processor(err, job) {
+          if (!type || job.type === type) {
+            cbCount++;
+            job.remove(function(err) {
+              if (err) throw err;
 
-            if (!--count) {
-              console.log('All done!');
-              return lib.exit(queue);
-            }
-          });
-        });
+              console.log('removed job #%d {state: "%s", type: "%s"} (%d/%d)',
+                job.id, state, job.type, total - cbCount + 1, total);
+
+              if (!--cbCount) {
+                console.log(chalk.green('Task complete!'));
+                return lib.exit();
+              }
+            });
+          }
+        }
       });
     });
   });
 };
+
+function countJobs(ids, cb) {
+  if (!type) return cb(null, ids.length);
+
+  var count = 0;
+  var cbCount = 0;
+  for (var i = 0; i < ids.length; i++) {
+    cbCount++;
+    kue.Job.get(ids[i], processor);
+  }
+
+  function processor(err, job) {
+    if (err) return cb(err);
+
+    if (job.type === type) count++;
+
+    if (!--cbCount) return cb(null, count);
+  }
+}

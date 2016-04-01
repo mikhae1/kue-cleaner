@@ -5,7 +5,7 @@ var lib = require('./lib');
 
 var targets = {
   'flow:test': {
-    redis: 'redis://uds-redis-test-clu03:6379/1',
+    redis: 'redis://uds-redis-test-clu01:6379/1',
     prefix: '{q}'
   },
   'flow:dev': {
@@ -15,12 +15,9 @@ var targets = {
 
 var argv = require('yargs')
   .usage('Usage: $0 <target> <task> [options]')
-
-.demand(2)
-
-.help('help')
-
-.argv;
+  .demand(2)
+  .help('help')
+  .argv;
 
 var target = targets[argv._.shift()];
 var task = argv._.shift();
@@ -31,8 +28,10 @@ var queue = kue.createQueue({
 });
 
 queue.on('error', function(err) {
-  console.error(err);
+  lib.error(err);
   lib.exit(queue);
 });
+
+lib.init(queue);
 
 require('./tasks/' + task + '.js')(queue, argv);
