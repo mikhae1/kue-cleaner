@@ -6,11 +6,11 @@ var Redis = require('ioredis');
 var lib = require('./lib');
 var config = require('./config');
 
-var argv = require('yargs')
+var yargs = require('yargs')
   .usage('Usage: $0 <target> <task> [options]')
-  .demand(2)
-  .help('help')
-  .argv;
+  .demand(2);
+
+var argv = yargs.argv;
 
 var targets = config.targets;
 var target = targets[argv._.shift()];
@@ -25,7 +25,7 @@ queue.on('error', function(err) {
 
 lib.init(queue);
 
-require('./tasks/' + task + '.js')(queue, argv);
+require('./tasks/' + task + '.js')(queue, yargs);
 
 // always use ioredis! (nd-queue default)
 function create(config) {

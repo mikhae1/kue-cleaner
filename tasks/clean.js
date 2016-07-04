@@ -10,8 +10,14 @@ var type, state;
  * если тип (type) указан, стирает только определенного типа
  * FIXME: Нужно удалять частями и потом делать паузу через каждые 10 000
  */
-module.exports = function(queue, argv) {
-  state = argv._[0];
+module.exports = function(queue, yargs) {
+  var argv = yargs
+    .usage('Usage: $0 clean <taskStatus> <taskName> [options]')
+    .demand(3)
+    .help('help')
+    .argv;
+
+  state = argv._[2];
   var cbCount = 0;
 
   if (!state) {
@@ -19,7 +25,11 @@ module.exports = function(queue, argv) {
     lib.exit(1);
   }
 
-  if (argv._.length > 1) type = argv._[1];
+  console.log(argv._);
+
+  if (argv._.length > 3) type = argv._[3];
+
+  console.log(state, type);
 
   queue[state](function(err, ids) {
     countJobs(ids, function(err, total) {
@@ -47,11 +57,22 @@ module.exports = function(queue, argv) {
                 job.id, state, job.type, total - cbCount + 1, total);
 
               if (!--cbCount) {
-                console.log(chalk.green('Task complete!'));
-                return lib.exit();
+                done();
               }
             });
           }
+        }
+
+        function done() {
+          var timeout = parseInt((total / 10000) * 2 * 1000);
+
+          // https://github.com/Automattic/kue#job-cleanup
+          console.log(chalk.yellow('Waiting ' + timeout +
+            'ms to .remove() call to complete before the process exits'));
+          return setTimeout(function() {
+            console.log(chalk.green('Task complete!'));
+            lib.exit();
+          }, timeout);
         }
       });
     });
