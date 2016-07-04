@@ -32,6 +32,7 @@ function getInfo(queue, cb) {
   var info = {},
     qcount = 0;
 
+  // total counters
   kueStates.forEach(function(type) {
     qcount++;
     queue[type + 'Count'](function(err, count) {

@@ -5,6 +5,11 @@ var chalk = require('chalk');
 
 var type, state;
 
+/**
+ * Стирает все задачи с определенным статусом (status)
+ * если тип (type) указан, стирает только определенного типа
+ * FIXME: Нужно удалять частями и потом делать паузу через каждые 10 000
+ */
 module.exports = function(queue, argv) {
   state = argv._[0];
   var cbCount = 0;
