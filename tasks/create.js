@@ -58,7 +58,7 @@ module.exports = function(queue, yargs) {
       queue.create(jobType, {
         title: 'Test Job',
         ts: new Date()
-      }).state(argv.state).save(callback);
+      }).save(callback);
     }
 
     function callback(err) {
