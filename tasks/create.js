@@ -1,7 +1,7 @@
 var lib = require('../lib');
 var chalk = require('chalk');
 
-var CHUNK_LENGTH = 10000;
+var CHUNK_SIZE = 10000;
 var CHUNK_TIMEOUT = 1000;
 
 module.exports = function(queue, yargs) {
@@ -15,6 +15,11 @@ module.exports = function(queue, yargs) {
       describe: 'Number of jobs to be created',
       default: 100
     })
+    .option('s', {
+      alias: 'state',
+      describe: 'Job status',
+      default: 'inactive'
+    })
     .help('help')
     .argv;
 
@@ -23,41 +28,41 @@ module.exports = function(queue, yargs) {
 
   console.log(chalk.cyan('Preparing to create %d dummy jobs...'), total);
 
-  var totalJobs = total;
+  var jobsToCreate = total;
   var jobs = 0;
 
   loop();
 
   function loop() {
-    if (totalJobs <= 0) return done();
+    if (jobsToCreate <= 0) return done();
 
-    jobs = CHUNK_LENGTH;
-    if (totalJobs < CHUNK_LENGTH) jobs = totalJobs;
+    jobs = CHUNK_SIZE;
+    if (jobsToCreate < CHUNK_SIZE) jobs = jobsToCreate;
 
-    creator(jobs, function() {
-      totalJobs -= jobs;
+    chunkProcess(jobs, function() {
+      jobsToCreate -= jobs;
       console.log('jobs added {state: "%s", type: "%s"} (%d/%d)',
-        'inactive', jobType, total - totalJobs, total);
+        argv.state, jobType, total - jobsToCreate, total);
 
-      console.log(chalk.yellow('waiting for %s ms'), CHUNK_TIMEOUT);
+      console.log(chalk.yellow('waiting for %s ms to continue'), CHUNK_TIMEOUT);
 
       // https://github.com/Automattic/kue#job-cleanup
       setTimeout(loop, CHUNK_TIMEOUT);
     });
   }
 
-  function creator(amount, next) {
+  function chunkProcess(chunkSize, next) {
     var cbCount = 0;
-    for (var i = 0; i < amount; i++) {
+    for (var i = 0; i < chunkSize; i++) {
       cbCount++;
       queue.create(jobType, {
         title: 'Test Job',
         ts: new Date()
-      }).save(callback);
+      }).state(argv.state).save(callback);
     }
 
     function callback(err) {
-      if (err) throw err;
+      if (err) return lib.error(err);
 
       if (!--cbCount) next();
     }
