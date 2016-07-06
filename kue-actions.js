@@ -2,12 +2,11 @@
 
 var kue = require('kue');
 var Redis = require('ioredis');
-var chalk = require('chalk');
+var path = require('path');
+var fs = require('fs');
 
 var lib = require('./lib');
 var config = require('./config');
-var path = require('path');
-var fs = require('fs');
 
 var yargs = require('yargs')
   .usage('Usage: $0 <target> <task> [options]');
@@ -23,7 +22,7 @@ if (!task) return error('Specify task');
 
 if (!targets.hasOwnProperty(target)) return error('Unknown target');
 
-var taskPath = path.join('tasks', task + '.js');
+var taskPath = './' + path.join('tasks', task + '.js');
 
 try {
   fs.accessSync(taskPath);
@@ -41,7 +40,7 @@ queue.on('error', function(err) {
 
 lib.init(queue);
 
-require('./' + taskPath)(queue, yargs);
+require(taskPath)(queue, yargs);
 
 // always use ioredis! (nd-queue default)
 function create(config) {
@@ -57,7 +56,7 @@ function create(config) {
 }
 
 function error(err) {
-  console.error(chalk.red(err));
+  lib.warning.apply(lib.warning, Array.prototype.slice.call(arguments));
 
   process.exit(1);
 }
