@@ -34,6 +34,57 @@ module.exports = {
       },
       //prefix: '{q}'
     },
+    'koala:prot': {
+      redis: {
+        db: 2,
+        name: 'redis-cluster',
+        sentinels: [{
+          host: 'uds-suek-redis01',
+          port: 16379
+        }, {
+          host: 'uds-suek-redis02',
+          port: 16379
+        }, {
+          host: 'uds-suek-redis03',
+          port: 16379
+        }]
+      },
+      //prefix: '{q}'
+    },
+    'flow:prod': {
+      redis: {
+        db: 4,
+        name: 'redis-cluster',
+        sentinels: [{
+          host: 'uds-redis-clu01',
+          port: 16379
+        }, {
+          host: 'uds-redis-clu02',
+          pprt: 16379
+        }, {
+          host: 'uds-redis-clu03',
+          port: 16379
+        }]
+      },
+      //}refix: '{q}'
+    },
+    'flow:staging': {
+      redis: {
+        db: 9,
+        name: 'redis-cluster',
+        sentinels: [{
+          host: 'uds-redis-test-clu01',
+          port: 16379
+        }, {
+          host: 'uds-redis-test-clu02',
+          pprt: 16379
+        }, {
+          host: 'uds-redis-test-clu03',
+          port: 16379
+        }]
+      },
+      //}refix: '{q}'
+    },
     'orchid:test': {
       redis: 'redis://ec001-redis-test.e-c.io:6379/1',
     },

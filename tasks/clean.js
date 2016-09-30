@@ -3,8 +3,8 @@ var inquirer = require('inquirer');
 var lib = require('../lib');
 var chalk = require('chalk');
 
-var CHUNK_SIZE = 10000;
-var CHUNK_TIMEOUT = 1000;
+var CHUNK_SIZE = 20000;
+var CHUNK_TIMEOUT = 300;
 
 /**
  * Стирает все задачи с определенным статусом (status)
@@ -53,6 +53,7 @@ module.exports = function(queue, yargs) {
           if (removedJobs >= totalJobs) return done();
 
           console.log(chalk.yellow('waiting for %s ms to continue'), CHUNK_TIMEOUT);
+
           setTimeout(loop, CHUNK_TIMEOUT);
         });
       }
