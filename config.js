@@ -85,6 +85,23 @@ module.exports = {
       },
       //}refix: '{q}'
     },
+    'flow:vision': {
+      redis: {
+        db: 25,
+        name: 'redis-cluster',
+        sentinels: [{
+          host: 'uds-redis-test-clu01',
+          port: 16379
+        }, {
+          host: 'uds-redis-test-clu02',
+          pprt: 16379
+        }, {
+          host: 'uds-redis-test-clu03',
+          port: 16379
+        }]
+      },
+      //}refix: '{q}'
+    },
     'orchid:test': {
       redis: 'redis://ec001-redis-test.e-c.io:6379/1',
     },

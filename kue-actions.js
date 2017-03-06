@@ -17,17 +17,17 @@ var targets = config.targets;
 var target = argv._.shift();
 var task = argv._.shift();
 
-if (!target) return error('Define target');
-if (!task) return error('Specify task');
+if (!target) return error('no target defined');
+if (!task) return error('no task specified');
 
-if (!targets.hasOwnProperty(target)) return error('Unknown target');
+if (!targets.hasOwnProperty(target)) return error('unknown target ' + target);
 
 var taskPath = './' + path.join('tasks', task + '.js');
 
 try {
   fs.accessSync(taskPath);
 } catch (e) {
-  error('Task "%s" not found at %s', task, taskPath);
+  error('task "%s" not found at %s', task, taskPath);
 }
 
 var config = targets[target];
