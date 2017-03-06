@@ -6,15 +6,22 @@ var CHUNK_TIMEOUT = 1000;
 
 exports.command = 'create';
 
+exports.desc = 'Create dummy jobs for testing';
+
 exports.builder = (yargs) => {
   yargs
     .usage('Usage: $0 <env> create <taskName> [options]')
-    .demand(3)
+    .demand(1)
     .option('n', {
       alias: 'total',
       type: 'number',
       describe: 'Number of jobs to be created',
       default: 100
+    })
+    .option('t', {
+      alias: 'title',
+      describe: 'Job title',
+      default: 'Test Job Title'
     })
     .option('s', {
       alias: 'state',
@@ -57,7 +64,7 @@ exports.run = function(queue, argv) {
     for (var i = 0; i < chunkSize; i++) {
       cbCount++;
       queue.create(jobType, {
-        title: 'Test Job',
+        title: argv.t,
         ts: new Date()
       }).save(callback);
     }
