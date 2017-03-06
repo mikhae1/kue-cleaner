@@ -4,10 +4,11 @@ var chalk = require('chalk');
 var CHUNK_SIZE = 10000;
 var CHUNK_TIMEOUT = 1000;
 
-module.exports = function(queue, yargs) {
+exports.command = 'create';
 
-  var argv = yargs
-    .usage('Usage: $0 create <taskName> [options]')
+exports.builder = (yargs) => {
+  yargs
+    .usage('Usage: $0 <env> create <taskName> [options]')
     .demand(3)
     .option('n', {
       alias: 'total',
@@ -19,10 +20,10 @@ module.exports = function(queue, yargs) {
       alias: 'state',
       describe: 'Job status',
       default: 'inactive'
-    })
-    .help('help')
-    .argv;
+    });
+};
 
+exports.run = function(queue, argv) {
   var jobType = argv._[2];
   var total = parseInt(argv.total, 10);
 

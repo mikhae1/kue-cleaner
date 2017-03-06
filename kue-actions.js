@@ -8,9 +8,29 @@ var fs = require('fs');
 var lib = require('./lib');
 var config = require('./config');
 
+let tasks = initTasks('./tasks');
+let envs = Object.keys(config.targets);
+function initArgs(yargs, envs, tasks) {
+  function taskArgs(yargs) {
+    tasks.forEach(task => {
+       yargs.command(task, 'task');
+    });
+
+    yargs.commandDir('./tasks');
+  }
+
+  envs.forEach(env => {
+    yargs.command(env, 'environment', taskArgs);
+  });
+}
+
 var yargs = require('yargs')
-  .usage('Usage: $0 <target> <task> [options]');
-  //.demand(2);
+  .usage('Usage: $0 <target> <task> [options]')
+  .completion('completions')
+  .alias('h', 'help')
+  .help();
+
+initArgs(yargs, envs, tasks);
 
 var argv = yargs.argv;
 var targets = config.targets;
@@ -40,7 +60,7 @@ queue.on('error', function(err) {
 
 lib.init(queue);
 
-require(taskPath)(queue, yargs);
+require(taskPath).run(queue, argv);
 
 // always use ioredis! (nd-queue default)
 function create(config) {
@@ -59,4 +79,18 @@ function error(err) {
   lib.warning.apply(lib.warning, Array.prototype.slice.call(arguments));
 
   process.exit(1);
+}
+
+function initTasks(_path) {
+  let files = fs.readdirSync(_path);
+
+  let out = [];
+
+  files.forEach(file => {
+    if (!file.includes('.js')) return;
+
+    out.push(file.split('.js')[0]);
+  });
+
+  return out;
 }

@@ -3,7 +3,20 @@ var lib = require('../lib');
 var kueStates = lib.kueStates;
 var TIMEOUT = 3000;
 
-module.exports = function(queue, argv) {
+exports.command = 'info'
+
+exports.builder = (yargs) => {
+  yargs
+    .usage('Usage: $0 <env> info <taskName> [options]')
+    .option('r', {
+      alias: 'repeat',
+      type: 'bool',
+      describe: 'Repeat info polling',
+      default: false
+    });
+};
+
+exports.run = (queue, argv) => {
   if (argv.r) {
     setInterval(function() {
       getInfo(queue, done);

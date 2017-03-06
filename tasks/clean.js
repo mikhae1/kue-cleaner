@@ -10,9 +10,12 @@ var CHUNK_TIMEOUT = 300;
  * Стирает все задачи с определенным статусом (status)
  * если тип (type) указан, стирает только определенного типа
  */
-module.exports = function(queue, yargs) {
-  var argv = yargs
-    .usage('Usage: $0 clean-chunks [jobType] [options]')
+
+exports.command = 'clean';
+
+exports.builder = (yargs) => {
+  yargs
+    .usage('Usage: $0 <env> clean [jobType] [options]')
     .option('t', {
       alias: 'type',
       describe: 'Job type'
@@ -21,10 +24,10 @@ module.exports = function(queue, yargs) {
       alias: 'state',
       describe: 'Job status',
       default: 'failed'
-    })
-    .help('help')
-    .argv;
+    });
+};
 
+exports.run = (queue, argv) => {
   var removedJobs = 0;
   countJobs(function(err, totalJobs) {
     if (err) return lib.error(err);
@@ -37,10 +40,7 @@ module.exports = function(queue, yargs) {
       message: msg,
       name: 'confirm'
     }], function(ans) {
-      if (!ans.confirm) {
-        console.log(chalk.yellow('Stopped by user'));
-        return lib.exit();
-      }
+      if (!ans.confirm) return lib.exit();
 
       loop();
 

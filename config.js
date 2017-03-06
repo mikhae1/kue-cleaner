@@ -1,6 +1,6 @@
 module.exports = {
   targets: {
-    'orchid:prod': {
+    'orchid-prod': {
       redis: {
         db: 1,
         name: 'redis-cluster',
@@ -17,7 +17,7 @@ module.exports = {
       },
       //prefix: '{q}'
     },
-    'orchid:prod2': {
+    'orchid-prod2': {
       redis: {
         db: 10,
         name: 'redis-cluster',
@@ -34,7 +34,7 @@ module.exports = {
       },
       //prefix: '{q}'
     },
-    'koala:prot': {
+    'koala-prot': {
       redis: {
         db: 2,
         name: 'redis-cluster',
@@ -51,7 +51,7 @@ module.exports = {
       },
       //prefix: '{q}'
     },
-    'flow:prod': {
+    'flow-prod': {
       redis: {
         db: 4,
         name: 'redis-cluster',
@@ -68,7 +68,7 @@ module.exports = {
       },
       //}refix: '{q}'
     },
-    'flow:staging': {
+    'flow-staging': {
       redis: {
         db: 9,
         name: 'redis-cluster',
@@ -85,7 +85,7 @@ module.exports = {
       },
       //}refix: '{q}'
     },
-    'flow:vision': {
+    'flow-vision': {
       redis: {
         db: 25,
         name: 'redis-cluster',
@@ -102,10 +102,10 @@ module.exports = {
       },
       //}refix: '{q}'
     },
-    'orchid:test': {
+    'orchid-test': {
       redis: 'redis://ec001-redis-test.e-c.io:6379/1',
     },
-    'flow:dev': {
+    'flow-dev': {
       redis: 'redis://uds-redis-dev:6379/2',
     },
     'local': {
